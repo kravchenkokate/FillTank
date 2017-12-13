@@ -31,17 +31,55 @@ public class Tank {
         System.out.println("Объём резервуара: " + amount + "(л)");
         System.out.println("Варианты заполнения:");
 
-        for (int i = 0; i < buckets.size(); i++) {
-            findVariant(amount, i);
-        }
+        // найти первый вариант
+        findFirstVariant();
+        // найти другие варианты
+        do {
+            findOtherVariants(buckets.size() - 2);
+        } while (!enough());
 
         System.out.println(String.format("Итого: при объёме %d(л) есть %d вариантов заполнения.", amount, varCount));
     }
 
-    private void findVariant(int currAmount, int bucketIndex) {
+    private void findFirstVariant() {
+        calcBucketCount(amount, 0);
+    }
 
-        // остаток
-        int rest = 0;
+    private void findOtherVariants(int currBucketIndex) {
+
+        Bucket currBucket = buckets.get(currBucketIndex);
+        int currBucketCount = currBucket.getCount();
+
+        if (currBucketCount > 0) {
+            currBucketCount--;
+            currBucket.setCount(currBucketCount);
+
+            int rest = amount;
+            for (Bucket bucket : buckets) {
+                int bucketAmount = bucket.getAmount();
+                int bucketCount = bucket.getCount();
+                if(bucketAmount < currBucket.getAmount()) {
+                    bucketCount = 0;
+                    bucket.setCount(0);
+                }
+                rest -= bucketCount * bucketAmount;
+            }
+
+            calcBucketCount(rest, currBucketIndex + 1);
+        }
+        // если объём ведра неподходящий
+        else {
+            if (currBucketIndex > 0) {
+                // переходим к ведру большего объёма
+                findOtherVariants(currBucketIndex - 1);
+            } else {
+                // посчитать только 1л вёдрами
+                calcBucketCount(amount, buckets.size() - 1);
+            }
+        }
+    }
+
+    private void calcBucketCount(int currAmount, int bucketIndex) {
 
         // объём ведра
         int bucketAmount = buckets.get(bucketIndex).getAmount();
@@ -49,27 +87,18 @@ public class Tank {
         int bucketCount = (int) Math.floor(currAmount / bucketAmount);
         buckets.get(bucketIndex).setCount(bucketCount);
 
-        if (bucketIndex < buckets.size() - 1) {
-
-            // если объём ведра неподходящий - переходим к следующему ведру
-            if (bucketCount == 0) {
-                findVariant(currAmount, bucketIndex + 1);
-                return;
-            }
-            // постепенно уменьшаем количество вёдер текущего объёма и пересчитываем количество других вёдер
-            while (bucketCount > 0) {
-
-                rest = currAmount - bucketCount * bucketAmount;
-                if (rest > 0) {
-                    findVariant(rest, bucketIndex + 1);
-                } else {
-                    printVariant();
-                }
-                bucketCount--;
-                buckets.get(bucketIndex).setCount(bucketCount);
+        if (bucketCount > 0) {
+            // вычисляем остаток
+            int rest = currAmount - bucketCount * bucketAmount;
+            // если объёма ведра недостаточно - переходим к следующему ведру
+            if (rest > 0) {
+                calcBucketCount(rest, bucketIndex + 1);
+            } else {
+                printVariant();
             }
         } else {
-            printVariant();
+            // если объём ведра неподходящий - переходим к следующему ведру
+            calcBucketCount(currAmount, bucketIndex + 1);
         }
     }
 
@@ -89,5 +118,17 @@ public class Tank {
         sb.setLength(length - 3);
 
         System.out.println(String.format("%d). %s;", varCount, sb.toString()));
+    }
+
+    private boolean enough() {
+
+        boolean result = true;
+        for (int i = 0; i < buckets.size() - 1; i++) {
+            if (buckets.get(i).getCount() > 0) {
+                result = false;
+                break;
+            }
+        }
+        return result;
     }
 }
