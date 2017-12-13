@@ -84,8 +84,8 @@ public class Tank {
             }
             calcBucketCount(rest, currBucketIndex + 1);
         }
-        // если объём ведра неподходящий
         else {
+            // если объём ведра неподходящий
             if (currBucketIndex > 0) {
                 // переходим к ведру большего объёма
                 findOtherVariants(currBucketIndex - 1);
@@ -113,8 +113,8 @@ public class Tank {
         if (bucketCount > 0) {
             // вычисляем остаток
             int rest = currAmount - bucketCount * bucketAmount;
-            // если объёма ведра недостаточно - переходим к следующему ведру
             if (rest > 0) {
+                // если объёма ведра недостаточно - переходим к следующему ведру
                 calcBucketCount(rest, bucketIndex + 1);
             } else {
                 // всё заполнили - печатаем
