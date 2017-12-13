@@ -6,9 +6,9 @@ package com.test;
  */
 public class Bucket {
 
-    //объём ведра
+    // объём ведра
     private int amount;
-    //количество вёдер, необходимых для заполнения бака
+    // количество вёдер, необходимых для заполнения бака
     private int count;
 
     public Bucket(int amount, int count) {
