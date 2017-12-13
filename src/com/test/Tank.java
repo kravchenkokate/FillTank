@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+/**
+ * Резервуар
+ */
 public class Tank {
 
     // объём резервуара
@@ -18,6 +21,9 @@ public class Tank {
         init();
     }
 
+    /**
+     * Начальная инициализация - задаём параметры вёдер
+     */
     private void init() {
 
         buckets.add(new Bucket(10, 0));
@@ -26,6 +32,9 @@ public class Tank {
         buckets.add(new Bucket(1, 0));
     }
 
+    /**
+     * Заполнить резервуар - вывести на консоль все возможные варианты
+     */
     public void fill() {
 
         System.out.println("Объём резервуара: " + amount + "(л)");
@@ -41,19 +50,28 @@ public class Tank {
         System.out.println(String.format("Итого: при объёме %d(л) есть %d вариантов заполнения.", amount, varCount));
     }
 
+    /**
+     * Найти начальный вариант заполнения
+     */
     private void findFirstVariant() {
         calcBucketCount(amount, 0);
     }
 
+    /**
+     * Найти различные варианты заполнения резервуара
+     * @param currBucketIndex - индекс текущего ведра
+     */
     private void findOtherVariants(int currBucketIndex) {
 
         Bucket currBucket = buckets.get(currBucketIndex);
         int currBucketCount = currBucket.getCount();
 
         if (currBucketCount > 0) {
+            // уменьшаем количество вёдер текущего объёма на 1
             currBucketCount--;
             currBucket.setCount(currBucketCount);
 
+            // для вёдер меньшего объёма - пересчитываем количество
             int rest = amount;
             for (Bucket bucket : buckets) {
                 int bucketAmount = bucket.getAmount();
@@ -64,7 +82,6 @@ public class Tank {
                 }
                 rest -= bucketCount * bucketAmount;
             }
-
             calcBucketCount(rest, currBucketIndex + 1);
         }
         // если объём ведра неподходящий
@@ -73,17 +90,23 @@ public class Tank {
                 // переходим к ведру большего объёма
                 findOtherVariants(currBucketIndex - 1);
             } else {
-                // посчитать только 1л вёдрами
+                // заполнить резервуар только 1л вёдрами
                 calcBucketCount(amount, buckets.size() - 1);
             }
         }
     }
 
+    /**
+     * Посчитать количество вёдер определённого объёма (10л, 5л, 2л, 1л),
+     * необходимых для заполнения указанного объёма в резервуаре
+     * @param currAmount - объём в резервуаре, который нужно заполнить
+     * @param bucketIndex - индекс ведра
+     */
     private void calcBucketCount(int currAmount, int bucketIndex) {
 
         // объём ведра
         int bucketAmount = buckets.get(bucketIndex).getAmount();
-        // вычисляем максимальное количество вёдер, которое поместиться в резервуар
+        // вычисляем максимальное количество вёдер, которое поместиться в заданном объёме
         int bucketCount = (int) Math.floor(currAmount / bucketAmount);
         buckets.get(bucketIndex).setCount(bucketCount);
 
@@ -94,6 +117,7 @@ public class Tank {
             if (rest > 0) {
                 calcBucketCount(rest, bucketIndex + 1);
             } else {
+                // всё заполнили - печатаем
                 printVariant();
             }
         } else {
@@ -102,6 +126,9 @@ public class Tank {
         }
     }
 
+    /**
+     * Вывести вариант заполнения резервуара на консоль
+     */
     private void printVariant() {
 
         varCount++;
@@ -120,9 +147,14 @@ public class Tank {
         System.out.println(String.format("%d). %s;", varCount, sb.toString()));
     }
 
+    /**
+     * Проверить, нужно ли продолжать поиск новых вариантов
+     * @return
+     */
     private boolean enough() {
 
         boolean result = true;
+        // поиск можно прекратить, если резервуар можно заполнить только вёдрами 1л
         for (int i = 0; i < buckets.size() - 1; i++) {
             if (buckets.get(i).getCount() > 0) {
                 result = false;

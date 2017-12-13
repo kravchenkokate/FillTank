@@ -1,6 +1,9 @@
 package com.test;
 
 
+/**
+ * Ведро
+ */
 public class Bucket {
 
     //объём ведра
